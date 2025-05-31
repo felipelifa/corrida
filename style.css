@@ -1,0 +1,91 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  max-width: 900px;
+  margin: auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+form label {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+form input, form select, form button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+th {
+  background-color: #3498db;
+  color: white;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+/* Cores para tipos de treino */
+td:contains("Rodagem Leve") {
+  background-color: #eafaf1;
+}
+
+td:contains("Limiar") {
+  background-color: #eaf2fb;
+}
+
+td:contains("Tiros") {
+  background-color: #fef3e6;
+}
+
+td:contains("Longao"), td:contains("Longão") {
+  background-color: #f3e9ff;
+}
+
+/* Destacar semana */
+h3[style] {
+  margin-top: 40px;
+  padding-top: 15px;
+  border-top: 3px solid #3498db;
+  color: #2c3e50;
+}

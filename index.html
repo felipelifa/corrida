@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+  <title>Gerador de Treino Aeróbico com Progressão</title>
+</head>
+<body>
+    
+<div style="margin-top: 20px; text-align: center;">
+  <a href="caminhada.html" target="_blank">
+    <button style="padding: 10px 20px; background-color: #27ae60; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer;">
+      Acessar Treino de Caminhada
+    </button>
+  </a>
+</div>
+
+  <div class="container">
+    <h2>Gerador de Treino Aeróbico - 4 Semanas com Tiros e Progressão</h2>
+    <form id="form">
+      <label>Nome do Aluno:</label>
+      <input type="text" id="nome" required>
+      <label>Idade:</label>
+      <input type="number" id="idade" required>
+      <label>Sexo:</label>
+      <select id="sexo">
+        <option value="masculino">Masculino</option>
+        <option value="feminino">Feminino</option>
+      </select>
+      <label>Tempo Médio de Treino (min):</label>
+      <input type="number" id="tempo" required>
+      <label>Dias de Treino por Semana:</label>
+      <input type="number" id="dias" required min="1" max="7">
+      <label>Meta (descrição):</label>
+      <input type="text" id="meta" required>
+      <label>Meta de Distância ao final (em km):</label>
+      <input type="number" id="metaDistancia" required>
+      <label>Distância do Teste de Cooper (m):</label>
+      <input type="number" id="cooper" required>
+      <button type="submit">Gerar Treino</button>
+    </form>
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    function calcularVO2(dist) {
+      return (dist - 504.9) / 44.73;
+    }
+
+    function vo2ParaVelocidade(vo2) {
+      return vo2 / 3.5;
+    }
+
+    function velocidadeParaPace(vel) {
+      const pace = 60 / vel;
+      const min = Math.floor(pace);
+      const sec = Math.round((pace - min) * 60);
+      return min + ':' + (sec < 10 ? '0' + sec : sec) + '/km';
+    }
+
+    document.getElementById("form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById("nome").value;
+      const tempo = parseInt(document.getElementById("tempo").value);
+      const dias = parseInt(document.getElementById("dias").value);
+      const cooper = parseInt(document.getElementById("cooper").value);
+      const metaDistancia = parseFloat(document.getElementById("metaDistancia").value);
+      const vo2max = calcularVO2(cooper);
+
+      let html = '<h3>Plano de Treino - ' + nome + '</h3>';
+      html += '<p><strong>VO₂máx:</strong> ' + vo2max.toFixed(2) + ' ml/kg/min</p>';
+
+      const tipos = ["Limiar", "Rodagem Leve", "Tiros", "Longao"];
+      const volumeSemanal = [0.7, 0.85, 1, 0.6].map(p => p * metaDistancia);
+
+      for (let semana = 1; semana <= 4; semana++) {
+        html += '<h3 style="margin-top:40px; border-bottom: 2px solid #3498db;">Semana ' + semana + '</h3>';
+        html += '<table border="1" cellpadding="8" cellspacing="0"><tr><th>Dia</th><th>Tipo</th><th>Descrição</th><th>Velocidade</th><th>Pace</th><th>Distância</th><th>Duração</th></tr>';
+
+        let volumeSemana = volumeSemanal[semana - 1];
+        let longaoDist = volumeSemana;
+
+        for (let dia = 1; dia <= dias; dia++) {
+          let tipo = tipos[(dia - 1) % tipos.length];
+          if (dias === 4 && dia === 4) tipo = "Longao";
+
+          let tipoDesc = "", pace = "", velocidade = 0, distancia = 0, duracao = 0;
+
+          if (tipo === "Rodagem Leve") {
+            velocidade = vo2ParaVelocidade(vo2max * (0.60 + semana * 0.02));
+            distancia = longaoDist * 0.6;
+            pace = velocidadeParaPace(velocidade);
+            tipoDesc = "Corrida leve contínua";
+          } else if (tipo === "Limiar") {
+            velocidade = vo2ParaVelocidade(vo2max * (0.80 + semana * 0.01));
+            distancia = longaoDist * 0.5;
+            pace = velocidadeParaPace(velocidade);
+            tipoDesc = "Tempo Run contínuo";
+          } else if (tipo === "Tiros") {
+            velocidade = vo2ParaVelocidade(vo2max * (1.00 + semana * 0.01));
+            distancia = longaoDist * 0.4;
+            const divFator = [4, 6, 8, 4][semana - 1];
+            const distTiro = Math.round((distancia * 1000) / divFator);
+            pace = velocidadeParaPace(velocidade);
+            tipoDesc = divFator + 'x ' + distTiro + ' metros a ritmo de ' + pace + ', com intervalo de 90s andando';
+          } else if (tipo === "Longao") {
+            velocidade = vo2ParaVelocidade(vo2max * (0.70 + semana * 0.01));
+            distancia = longaoDist;
+            pace = velocidadeParaPace(velocidade);
+            tipoDesc = "Corrida contínua longa (Longão)";
+          }
+
+          duracao = Math.round((distancia / velocidade) * 60);
+
+          html += '<tr><td>' + dia + '</td><td>' + tipo + '</td><td>' + tipoDesc + '</td><td>' + velocidade.toFixed(2) + ' km/h</td><td>' + pace + '</td><td>' + distancia.toFixed(2) + ' km</td><td>' + duracao + ' min</td></tr>';
+        }
+
+        html += '</table>';
+      }
+
+      document.getElementById("resultado").innerHTML = html;
+    });
+  </script>
+</body>
+</html>
