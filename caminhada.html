@@ -2,101 +2,76 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Treino de Caminhada - Baseado na FCmáx</title>
+  <meta charset="UTF-8">
+  <title>Plano de Caminhada para Iniciantes</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      padding: 20px;
-    }
-    .container {
-      background: #fff;
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2, h3 {
-      text-align: center;
-    }
-    label, input, button {
-      display: block;
-      width: 100%;
-      margin-top: 10px;
-    }
-    input, button {
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #28a745;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    table {
-      width: 100%;
-      margin-top: 30px;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    th {
-      background-color: #28a745;
-      color: white;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7f7; }
+    .container { background: white; padding: 20px; border-radius: 10px; max-width: 700px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; }
+    label { margin-top: 10px; display: block; }
+    input, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    button { background-color: #28a745; color: white; font-weight: bold; margin-top: 20px; }
+    table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #28a745; color: white; }
+    h3 { margin-top: 40px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Plano de Caminhada com Base na FCmáx (Tanaka)</h2>
-    <form id="form">
-      <label>Nome do Aluno:</label>
+    <h2>Plano de Caminhada para Iniciantes</h2>
+    <form id="formulario">
+      <label for="nome">Nome do Aluno:</label>
       <input type="text" id="nome" required>
-      <label>Idade:</label>
+
+      <label for="idade">Idade:</label>
       <input type="number" id="idade" required>
-      <label>Frequência de Treino (dias por semana):</label>
-      <input type="number" id="frequencia" min="1" max="7" required>
+
+      <label for="tempoTotal">Tempo total alvo por sessão (min):</label>
+      <input type="number" id="tempoTotal" required>
+
+      <label for="diasSemana">Dias de caminhada por semana:</label>
+      <input type="number" id="diasSemana" min="1" max="7" required>
+
       <button type="submit">Gerar Plano</button>
     </form>
+
     <div id="resultado"></div>
   </div>
 
   <script>
-    document.getElementById("form").addEventListener("submit", function(e) {
+    function gerarTabela(nome, idade, tempoTotal, diasSemana) {
+      const intensidades = ["Zona 1", "Zona 2", "Zona 3"];
+      const semanaProgresso = [0.6, 0.8, 0.5, 1.0];
+
+      let html = '<h3>Plano de Caminhada - ' + nome + ' (' + idade + ' anos)</h3>';
+      for (let semana = 1; semana <= 4; semana++) {
+        html += '<h3>Semana ' + semana + '</h3>';
+        html += '<table><tr><th>Dia</th><th>Intensidade</th><th>Duração</th><th>Zona FC</th></tr>';
+        const tempoBase = tempoTotal * semanaProgresso[semana - 1];
+        for (let dia = 1; dia <= diasSemana; dia++) {
+          const intensidade = intensidades[(dia - 1) % 3];
+          let zona = '';
+          if (intensidade === "Zona 1") zona = '50-60% da FCmáx';
+          if (intensidade === "Zona 2") zona = '60-65% da FCmáx';
+          if (intensidade === "Zona 3") zona = '65-70% da FCmáx';
+
+          html += '<tr><td>' + dia + '</td><td>' + intensidade + '</td><td>' + Math.round(tempoBase) + ' min</td><td>' + zona + '</td></tr>';
+        }
+        html += '</table>';
+      }
+      return html;
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function(e) {
       e.preventDefault();
       const nome = document.getElementById("nome").value;
-      const idade = parseInt(document.getElementById("idade").value);
-      const frequencia = parseInt(document.getElementById("frequencia").value);
+      const idade = document.getElementById("idade").value;
+      const tempoTotal = parseInt(document.getElementById("tempoTotal").value);
+      const diasSemana = parseInt(document.getElementById("diasSemana").value);
 
-      const fcmax = 208 - (0.7 * idade);
-      const intensidades = [
-        { semana: 1, faixa: "50-60%", alvo: [0.50, 0.60] },
-        { semana: 2, faixa: "55-65%", alvo: [0.55, 0.65] },
-        { semana: 3, faixa: "60-70%", alvo: [0.60, 0.70] },
-        { semana: 4, faixa: "50-60%", alvo: [0.50, 0.60] }
-      ];
-
-      let html = `<h3>Plano de Caminhada - ${nome}</h3><p><strong>Frequência Cardíaca Máxima:</strong> ${fcmax.toFixed(0)} bpm</p>`;
-      html += "<table><tr><th>Semana</th><th>Dia</th><th>Intensidade</th><th>Frequência Alvo (bpm)</th><th>Duração</th></tr>";
-
-      intensidades.forEach(info => {
-        for (let dia = 1; dia <= frequencia; dia++) {
-          const fcMin = Math.round(info.alvo[0] * fcmax);
-          const fcMax = Math.round(info.alvo[1] * fcmax);
-          html += `<tr><td>${info.semana}</td><td>${dia}</td><td>${info.faixa}</td><td>${fcMin} - ${fcMax}</td><td>30 - 45 min</td></tr>`;
-        }
-      });
-
-      html += "</table><p><strong>Orientações:</strong><ul><li>Monitore sua frequência cardíaca com relógio ou hand grip.</li><li>Evite treinar em jejum prolongado.</li><li>Progrida de forma gradual.</li></ul></p>";
-      document.getElementById("resultado").innerHTML = html;
+      const resultadoHTML = gerarTabela(nome, idade, tempoTotal, diasSemana);
+      document.getElementById("resultado").innerHTML = resultadoHTML;
     });
   </script>
 </body>
