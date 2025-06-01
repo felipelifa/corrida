@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Volume Semanal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      padding: 8px;
+      width: 100%;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Inserir Volume de Treinamento</h2>
+  <form id="form">
+    <div class="form-group">
+      <label>Dia da Semana:</label>
+      <select id="dia">
+        <option>Segunda</option>
+        <option>Terça</option>
+        <option>Quarta</option>
+        <option>Quinta</option>
+        <option>Sexta</option>
+        <option>Sábado</option>
+        <option>Domingo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Séries:</label>
+      <input type="number" id="series" placeholder="Deixe em branco se for caminhada">
+      <label>Repetições:</label>
+      <input type="number" id="repeticoes" placeholder="Deixe em branco se for caminhada">
+      <label>Tempo de Caminhada (min):</label>
+      <input type="number" id="tempo">
+    </div>
+    <button type="submit">Adicionar Volume</button>
+  </form>
+
+  <h3>Gráfico de Volume Diário</h3>
+  <canvas id="grafico" width="600" height="300"></canvas>
+  <p id="somaSemanal"><strong>Total Semanal:</strong> 0</p>
+
+  <script>
+    const dias = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+    const volumes = [0, 0, 0, 0, 0, 0, 0];
+
+    const ctx = document.getElementById("grafico").getContext("2d");
+    const grafico = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: dias,
+        datasets: [{
+          label: 'Volume do Dia (séries×reps ou tempo)',
+          data: volumes,
+          backgroundColor: '#3498db'
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    document.getElementById("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const dia = document.getElementById("dia").value;
+      const index = dias.indexOf(dia);
+
+      const series = parseInt(document.getElementById("series").value) || 0;
+      const reps = parseInt(document.getElementById("repeticoes").value) || 0;
+      const tempo = parseInt(document.getElementById("tempo").value) || 0;
+
+      let volume = 0;
+      if (series > 0 && reps > 0) {
+        volume = series * reps;
+      } else if (tempo > 0) {
+        volume = tempo;
+      }
+
+      volumes[index] = volume;
+      grafico.data.datasets[0].data = volumes;
+      grafico.update();
+
+      const soma = volumes.reduce((a, b) => a + b, 0);
+      document.getElementById("somaSemanal").innerText = `Total Semanal: ${soma}`;
+    });
+  </script>
+</body>
+</html>
